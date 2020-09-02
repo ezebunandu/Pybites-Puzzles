@@ -9,7 +9,7 @@ html_file = f"{out_dir}/enchantment_list_pc.html"
 HTML_FILE = Path(html_file)
 # source:
 # https://www.digminecraft.com/lists/enchantment_list_pc.php
-URL = "https://bites-data.s3.us-east-2.amazonaws.com/" "minecraft-enchantment.html"
+URL = "https://www.digminecraft.com/lists/enchantment_list_pc.php"
 
 
 class Enchantment:
@@ -19,7 +19,12 @@ class Enchantment:
         id_name, name, max_level, description, items
     """
 
-    pass
+    def __init__(self, id_name, name, max_level, description, items):
+        self.id_name = id_name
+        self.name = name
+        self.max_level = max_level
+        self.description = description
+        self.items = items or []
 
 
 class Item:
@@ -29,15 +34,39 @@ class Item:
         name, enchantments
     """
 
-    pass
+    def __init__(self, name, enchantments):
+        self.name = name
+        self.enchantments = enchantments or []
 
+    def __repr__(self):
+        return f"{self.name.title().replace('_', ' ')}:\n [{enchantment.max_level}] {enchantment.name} for enchantment in self.enchantments"
+        
+def _scrape_items(data_src):
+    items = data_src.split("/")[-1]
+    unwanted_strings_to_replace = [".", "_", "enchanted", "iron", "png", "sm"]
+    for unwanted_string in unwanted_strings_to_replace:
+        items = items.replace(unwanted_string, " ")
+    return items.split()
 
-def generate_enchantments(soup):
+def generate_enchantments(soup: Soup) -> dict:
     """Generates a dictionary of Enchantment objects
     
     With the key being the id_name of the enchantment.
     """
-    pass
+    enchantments = {}
+    table = soup.find_all("table", class_="std_table")
+    for tr in table[0].find_all("tr")[1:]:
+        elements = tr.find_all("td")
+        if elements:
+            name = elements[0].text
+            max_level = elements[1].text
+            description = elements[2].text
+            id_ = elements[3].text
+            items = _scrape_items(elements[4].img["data-src"])
+            enchantments[name] = [name, max_level, description, items]
+    return enchantments
+
+
 
 
 def generate_items(data):
