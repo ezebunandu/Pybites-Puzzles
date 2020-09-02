@@ -21,31 +21,31 @@ def remove_all_parenthesis_words(text):
     """Return text but without any words or phrases in parenthesis:
        'Good morning (afternoon)' -> 'Good morning' (so don't forget
        leading spaces)"""
-    return re.sub(r"\s\(\w+.*\)", "", text, count=1)
+    return re.sub(r"\s\(\w+.[^)]\)", "", text, count=0)
 
 
 def split_string_on_punctuation(text):
     """Split on ?!.,; - e.g. "hi, how are you doing? blabla" ->
        ['hi', 'how are you doing', 'blabla']
        (make sure you strip trailing spaces)"""
-    split_text = re.split(r'[?!.,;]', text)
+    split_text = re.split(r"[?!.,;]", text)
     return [text.strip() for text in split_text if text]
 
 
 def remove_duplicate_spacing(text):
     """Replace multiple spaces by one space"""
-    return re.sub(r'\s{2,}', ' ', text)
+    return re.sub(r"\s{2,}", " ", text)
 
 
 def has_three_consecutive_vowels(word):
     """Returns True if word has at least 3 consecutive vowels"""
-    return bool(re.search(r'[aeiou]{3,}', word))
+    return bool(re.search(r"[aeiou]{3,}", word))
 
 
 def convert_emea_date_to_amer_date(date):
     """Convert dd/mm/yyyy (EMEA date format) to mm/dd/yyyy
        (AMER date format)"""
-    if re.match(r'\d{2}/\d{2}/\d{4}', date):
-        date, month, year = date.split('/')
+    if re.match(r"\d{2}/\d{2}/\d{4}", date):
+        date, month, year = date.split("/")
         date = f"{month}/{date}/{year}"
     return date
