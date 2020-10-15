@@ -13,10 +13,16 @@ class NinjaBelt:
         """Might be a useful helper"""
         pass
 
+    @property
+    def score(self):
+        pass
+
+    @score.getter
     def _get_score(self):
         pass
 
+    @score.setter
     def _set_score(self, new_score):
         pass
 
-    score = property(_get_score, _set_score)
+
