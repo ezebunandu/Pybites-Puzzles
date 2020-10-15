@@ -11,18 +11,34 @@ class NinjaBelt:
 
     def _get_belt(self, new_score):
         """Might be a useful helper"""
-        pass
+        belt = max(key for key in BELTS.keys() if new_score >= key)
+        return BELTS.get(belt)
 
     @property
     def score(self):
-        pass
-
-    @score.getter
-    def _get_score(self):
-        pass
+        return self._score
 
     @score.setter
-    def _set_score(self, new_score):
-        pass
+    def score(self, new_score):
+        if not isinstance(new_score, int):
+            raise ValueError("Score takes an int")
+
+        if new_score < self._score:
+            raise ValueError("Cannot lower score")
+
+        self._score = new_score
+
+        the_belt = self._get_belt(new_score)
+
+        if self._last_earned_belt != the_belt:
+            self._last_earned_belt = the_belt
+            print(f"Congrats, you earned {self._score} points obtaining the PyBites Ninja {self._last_earned_belt.capitalize()} Belt")
+        else:
+            print(f"Set new score to {self._score}")
+
+if __name__ == "__main__":
+    ninja = NinjaBelt(score=0)
+    print(ninja.score)
+    ninja.score = 50
 
 
