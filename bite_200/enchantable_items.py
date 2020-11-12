@@ -1,6 +1,6 @@
 from pathlib import Path
 from urllib.request import urlretrieve
-
+import roman
 from bs4 import BeautifulSoup as Soup
 
 out_dir = "/tmp"
@@ -26,6 +26,9 @@ class Enchantment:
         self.description = description
         self.items = items or []
 
+    def __repr(self):
+        return f"{self.name} ({self.max_level}) {self.description}"
+
 
 class Item:
     """Minecraft enchantable item class
@@ -39,14 +42,21 @@ class Item:
         self.enchantments = enchantments or []
 
     def __repr__(self):
-        return f"{self.name.title().replace('_', ' ')}:\n [{enchantment.max_level}] {enchantment.name} for enchantment in self.enchantments"
+        name = self.name.replace('_', ' ')
+        items = []
+        return f"{self.name.title().replace('_', ' ')}:\n [{enchantment.max_level}] {enchantment.name for enchantment in self.enchantments}"
         
 def _scrape_items(data_src):
+    out = []
     items = data_src.split("/")[-1]
-    unwanted_strings_to_replace = [".", "_", "enchanted", "iron", "png", "sm"]
+    unwanted_strings_to_replace = [".", "enchanted_", "iron", "png", "sm"]
     for unwanted_string in unwanted_strings_to_replace:
-        items = items.replace(unwanted_string, " ")
-    return items.split()
+        items = items.replace(unwanted_string, "")
+    if "fishing_rod" in items:
+        out.append("fishing_rod")
+        items = items.replace("fishing_rod", "")
+    out += items.split("_")
+    return [item for item in out if item]
 
 def generate_enchantments(soup: Soup) -> dict:
     """Generates a dictionary of Enchantment objects
@@ -58,12 +68,13 @@ def generate_enchantments(soup: Soup) -> dict:
     for tr in table[0].find_all("tr")[1:]:
         elements = tr.find_all("td")
         if elements:
-            name = elements[0].text
-            max_level = elements[1].text
+            full_name = elements[0].text
+            name, id_name = full_name.split("(")
+            id_name = id_name.strip(")")
+            max_level = roman.fromRoman(elements[1].text)
             description = elements[2].text
-            id_ = elements[3].text
             items = _scrape_items(elements[4].img["data-src"])
-            enchantments[name] = [name, max_level, description, items]
+            enchantments[id_name] = Enchantment(id_name, name, max_level, description, items)
     return enchantments
 
 
