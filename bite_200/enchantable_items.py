@@ -2,9 +2,21 @@ from pathlib import Path
 from urllib.request import urlretrieve
 import roman
 from bs4 import BeautifulSoup as Soup
+from collections import defaultdict
 
 out_dir = "/tmp"
 html_file = f"{out_dir}/enchantment_list_pc.html"
+
+ROMAN = {'I': 1,
+         'II': 2,
+         'III': 3,
+         'IV': 4,
+         'V': 5,
+         'VI': 6,
+         'VII': 7,
+         'VIII': 8,
+         'IX': 9,
+         'X': 10} 
 
 HTML_FILE = Path(html_file)
 # source:
@@ -40,9 +52,9 @@ class Item:
         self.enchantments = enchantments or []
 
     def __repr__(self):
-        string = f"{self.name.title()}\n"
+        string = f"{self.name.title().replace('_', ' ')}: "
         for enchantment in self.enchantments:
-            string += f"{enchantment.max_level} {enchantment.name}"
+            string += f"\n  [{enchantment.max_level}] {enchantment.name.lower().replace(' ', '_')}"
         return string
 
 
@@ -71,7 +83,7 @@ def generate_enchantments(soup: Soup) -> dict:
             full_name = elements[0].text
             name, id_name = full_name.split("(")
             id_name = id_name.strip(")")
-            max_level = roman.fromRoman(elements[1].text)
+            max_level = ROMAN.get(elements[1].text.upper())
             description = elements[2].text
             items = _scrape_items(elements[4].img["data-src"])
             enchantments[id_name] = Enchantment(id_name,
@@ -86,7 +98,12 @@ def generate_items(data):
     """Generates a dictionary of Item objects
     With the key being the item name.
     """
-    pass
+    items = defaultdict(set)
+    for enchantment in data:
+        for item in data[enchantment].items:
+            items[item] = Item(item)
+            items[item].enchantments.append(data[enchantment])
+    return items
 
 
 def get_soup(file=HTML_FILE):
@@ -105,11 +122,6 @@ def get_soup(file=HTML_FILE):
 
 def main():
     """This function is here to help you test your final code."""
-    soup = get_soup()
-    enchantment_data = generate_enchantments(soup)
-    minecraft_items = generate_items(enchantment_data)
-    for item in minecraft_items:
-        print(minecraft_items[item], "\n")
 
 
 if __name__ == "__main__":
