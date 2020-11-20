@@ -1,8 +1,7 @@
 from pathlib import Path
 from urllib.request import urlretrieve
-import roman
 from bs4 import BeautifulSoup as Soup
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 out_dir = "/tmp"
 html_file = f"{out_dir}/enchantment_list_pc.html"
@@ -16,7 +15,7 @@ ROMAN = {'I': 1,
          'VII': 7,
          'VIII': 8,
          'IX': 9,
-         'X': 10} 
+         'X': 10}
 
 HTML_FILE = Path(html_file)
 # source:
@@ -100,8 +99,9 @@ def generate_items(data):
     """
     items = defaultdict(set)
     for enchantment in data:
-        for item in data[enchantment].items:
-            items[item] = Item(item)
+        for item in sorted(data[enchantment].items,):
+            if not items.get(item, None):
+                items[item] = Item(item)
             items[item].enchantments.append(data[enchantment])
     return items
 
@@ -121,7 +121,13 @@ def get_soup(file=HTML_FILE):
 
 
 def main():
-    """This function is here to help you test your final code."""
+    """This function is here to help you test your final code.
+    Once complete, the print out should match what's at the bottom of this file"""
+    soup = get_soup()
+    enchantment_data = generate_enchantments(soup)
+    minecraft_items = generate_items(enchantment_data)
+    for item in minecraft_items:
+        print(minecraft_items[item], "\n")
 
 
 if __name__ == "__main__":
