@@ -1,0 +1,5 @@
+# Ignore cached python bite code
+*.pyc
+
+# Ignore json settings
+*.json
