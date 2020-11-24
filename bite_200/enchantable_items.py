@@ -1,7 +1,7 @@
 from pathlib import Path
 from urllib.request import urlretrieve
 from bs4 import BeautifulSoup as Soup
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 
 out_dir = "/tmp"
 html_file = f"{out_dir}/enchantment_list_pc.html"
@@ -51,9 +51,10 @@ class Item:
         self.enchantments = enchantments or []
 
     def __repr__(self):
+        enchantments = sorted(self.enchantments, key=lambda e: e.id_name)
         string = f"{self.name.title().replace('_', ' ')}: "
-        for enchantment in self.enchantments:
-            string += f"\n  [{enchantment.max_level}] {enchantment.name.lower().replace(' ', '_')}"
+        for enchantment in enchantments:
+            string += f"\n  [{enchantment.max_level}] {enchantment.id_name}"
         return string
 
 
