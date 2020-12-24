@@ -7,5 +7,7 @@ awake = [True, False] * 3
 SEPARATOR = ' | '
 
 
-def generate_table():
-    pass
+def generate_table(*sequences):
+    for item in zip(*sequences):
+        seq = [str(val) for val in item]
+        yield SEPARATOR.join(seq)
