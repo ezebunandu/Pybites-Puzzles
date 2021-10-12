@@ -1,35 +1,34 @@
 from statistics import mean, median
-from decimal import Decimal
 
 
 class IntList(list):
-    def __init__(self, elements):
-        # check when initializing?
-        self.elements = list(elements)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @property
     def mean(self):
-        return mean(self.elements)
+        return mean(self)
 
     @property
     def median(self):
-        return median(self.elements)
+        return median(self)
 
-    # over-ride append method
-    def append(self, new):
-        if not isinstance(new, (int, float, Decimal)):
-            raise TypeError 
-        self.elements.append(new)
-
-    # overload __add__ and __ladd__
-    def __add__(self, new):
-        if not isinstance(new, (int, float)):
-            raise TypeError("can only add an int or a float to the list")
-        self.elements += new
-
-    def __iadd__(self, new):
-        if isinstance(new, list) and not all(isinstance(item, (int, float)) for item in new):
+    def _check_int(self, num):
+        try:
+            if isinstance(num, list):
+                return [int(i) for i in num]
+            return int(num)
+        except (ValueError, TypeError):
             raise TypeError
-        elif not isinstance(new, (int, float)):
-            raise TypeError('cannot add a non int/float')
-        self.elements += new
+
+    def append(self, num):
+        num = self._check_int(num)
+        super().append(num)
+
+    def __add__(self, num):
+        num = self._check_int(num)
+        return super().__add__(num)
+
+    def __iadd__(self, num):
+        num = self._check_int(num)
+        return super().__iadd__(num)
