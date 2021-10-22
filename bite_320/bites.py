@@ -9,7 +9,7 @@ from typing import List  # TODO: can remove >= 3.9
 # make sure they can be sorted by int value
 
 
-class BiteLevel(enum.Enum):
+class BiteLevel(enum.IntEnum):
     INTRO = 1
     BEGINNER = 2
     INTERMEDIATE = 3
@@ -20,9 +20,11 @@ class BiteLevel(enum.Enum):
 # attributes: number (int), title (str), level (BiteLevel)
 
 
-@dataclass
+@dataclass(order=True)
 class Bite:
-    pass
+    number: int
+    title: str
+    level: BiteLevel
 
 
 # 3. complete the function below
@@ -30,4 +32,5 @@ class Bite:
 
 def create_bites(numbers: List[int], titles: List[str], levels: List[BiteLevel]):
     """Generate a generator of Bite dataclass objects"""
-    pass
+    for number, title, level in zip(numbers, titles, levels):
+        yield Bite(number, title, level)
