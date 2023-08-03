@@ -15,11 +15,9 @@ class IntList(list):
 
     def _check_int(self, num):
         try:
-            if isinstance(num, list):
-                return [int(i) for i in num]
-            return int(num)
-        except (ValueError, TypeError):
-            raise TypeError
+            return [int(i) for i in num] if isinstance(num, list) else int(num)
+        except (ValueError, TypeError) as e:
+            raise TypeError from e
 
     def append(self, num):
         num = self._check_int(num)
